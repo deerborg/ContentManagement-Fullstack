@@ -1,6 +1,8 @@
 package dev.deerops.contentmanagementapi.content.model.converter;
 
 import dev.deerops.contentmanagementapi.content.model.dto.request.CreateNewContentRequest;
+import dev.deerops.contentmanagementapi.content.model.dto.request.UpdateContentAllDetailsRequest;
+import dev.deerops.contentmanagementapi.content.model.dto.request.UpdateNewlyAddedContentRequest;
 import dev.deerops.contentmanagementapi.content.model.dto.request.VisibleContentRequest;
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentDetailsResponse;
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentResponse;
@@ -21,15 +23,37 @@ public class ContentConverter {
         return contentEntity;
     }
 
-    public ContentEntity fromVisibleContentRequestToEntity(VisibleContentRequest request) {
+
+    public ContentEntity fromUpdateNewlyAddedContentRequestToEntity(UpdateNewlyAddedContentRequest request) {
+        ContentEntity contentEntity = new ContentEntity();
+
+        contentEntity.setContentId(request.getContentId());
+
+        contentEntity.setContentTitle(request.getContentTitle());
+
+        contentEntity.setContentDescription(request.getContentDescription());
+
+        return contentEntity;
+    }
+
+    public ContentEntity fromUpdateContentAllDetailsRequestToEntity(UpdateContentAllDetailsRequest request) {
         ContentEntity contentEntity = new ContentEntity();
 
         contentEntity.setContentId(request.getContentId());
 
         contentEntity.setVisibleContent(request.isVisibleContent());
 
+        contentEntity.setPublishDate(request.getPublishDate());
+
+        contentEntity.setUnpublishDate(request.getUnpublishDate());
+
+        contentEntity.setContentTitle(request.getContentTitle());
+
+        contentEntity.setContentDescription(request.getContentDescription());
+
         return contentEntity;
     }
+
 
     public ContentResponse fromEntityToContentResponse(ContentEntity contentEntity) {
         ContentResponse contentResponse = new ContentResponse();
@@ -40,6 +64,7 @@ public class ContentConverter {
 
         return contentResponse;
     }
+
 
 
     public ContentDetailsResponse fromEntityToContentDetailsResponse(ContentEntity contentEntity) {
