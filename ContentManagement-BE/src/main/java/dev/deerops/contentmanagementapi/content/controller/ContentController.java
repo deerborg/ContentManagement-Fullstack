@@ -2,6 +2,8 @@ package dev.deerops.contentmanagementapi.content.controller;
 
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponse;
 import dev.deerops.contentmanagementapi.content.model.dto.request.CreateNewContentRequest;
+import dev.deerops.contentmanagementapi.content.model.dto.request.UpdateContentAllDetailsRequest;
+import dev.deerops.contentmanagementapi.content.model.dto.request.UpdateNewlyAddedContentRequest;
 import dev.deerops.contentmanagementapi.content.model.dto.request.VisibleContentRequest;
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentDetailsResponse;
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentResponse;
@@ -21,50 +23,63 @@ public class ContentController {
         this.contentService = contentService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/private/create")
     public ResponseEntity<ApiResponse<ContentResponse>> createNewContent(@RequestBody CreateNewContentRequest contentRequest) {
 
         return contentService.createNewContent(contentRequest);
     }
 
-    @GetMapping("/content/{contentId}")
+    @GetMapping("/private/content/{contentId}")
     public ResponseEntity<ApiResponse<ContentResponse>> getContentByContentIdForPath(@PathVariable String contentId) {
         return contentService.getContentByContentIdForPath(contentId);
     }
 
-    @GetMapping("/contents")
+    @GetMapping("/private/contents")
     public ResponseEntity<ApiResponse<List<ContentResponse>>> getAllContentInContentResponse() {
         return contentService.getAllContentInContentResponse();
     }
 
-    @GetMapping("/contents/{contentId}/details")
+    @GetMapping("/private/contents/{contentId}/details")
     public ResponseEntity<ApiResponse<ContentDetailsResponse>> getContentDetailsByContentIdForPath(@PathVariable String contentId) {
         return contentService.getContentDetailsByContentIdForPath(contentId);
     }
 
-    @GetMapping("/contents/details")
+    @GetMapping("/private/contents/details")
     public ResponseEntity<ApiResponse<List<ContentDetailsResponse>>> getAllContentInContentDetailsResponse() {
         return contentService.getAllContentInContentDetailsResponse();
     }
 
-    @PutMapping("/update/published")
+    @PutMapping("/private/update/published")
     public ResponseEntity<ApiResponse<ContentResponse>> publishContent(@RequestBody VisibleContentRequest visibleContentRequest) {
         return contentService.publishContent(visibleContentRequest);
     }
 
-    @GetMapping("/contents/published")
+    @GetMapping("/public/contents/published")
     public ResponseEntity<ApiResponse<List<ContentResponse>>> getJustPublishedContents() {
         return contentService.getJustPublishedContents();
     }
 
-    @GetMapping("/contents/unpublished")
+    @GetMapping("/private/contents/unpublished")
     public ResponseEntity<ApiResponse<List<ContentResponse>>> getJustUnpublishedContents(){
         return contentService.getJustUnpublishedContents();
     }
 
-    @PutMapping("/update/unpublished")
-    ResponseEntity<ApiResponse<ContentResponse>> unpublishContent(@RequestBody VisibleContentRequest visibleContentRequest){
+    @PutMapping("/private/update/unpublished")
+    public ResponseEntity<ApiResponse<ContentResponse>> unpublishContent(@RequestBody VisibleContentRequest visibleContentRequest){
         return contentService.unpublishContent(visibleContentRequest);
     }
+
+    @PutMapping("/private/update")
+    public ResponseEntity<ApiResponse<ContentResponse>> updateNewlyAddedContent(@RequestBody UpdateNewlyAddedContentRequest updateNewlyAddedContentRequest){
+        return contentService.updateNewlyAddedContent(updateNewlyAddedContentRequest);
+    }
+
+    @PutMapping("/update/details")
+    public ResponseEntity<ApiResponse<ContentResponse>> updateAllDetailContent(@RequestBody UpdateContentAllDetailsRequest updateContentAllDetailsRequest){
+        return contentService.updateAllDetailContent(updateContentAllDetailsRequest);
+    }
+
+
+
 
 }

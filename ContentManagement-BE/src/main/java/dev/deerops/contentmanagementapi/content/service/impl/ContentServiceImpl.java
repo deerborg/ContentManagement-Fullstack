@@ -11,11 +11,10 @@ import dev.deerops.contentmanagementapi.content.model.dto.response.ContentDetail
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentResponse;
 import dev.deerops.contentmanagementapi.content.model.entity.ContentEntity;
 import dev.deerops.contentmanagementapi.content.model.util.exception.ContentLimitExceededException;
-import dev.deerops.contentmanagementapi.content.model.util.exception.NotFoundContent;
-import dev.deerops.contentmanagementapi.content.model.util.exception.NullOrEmptyContentException;
 import dev.deerops.contentmanagementapi.content.model.util.validation.ContentValidation;
 import dev.deerops.contentmanagementapi.content.repository.ContentRepository;
 import dev.deerops.contentmanagementapi.content.service.ContentService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,9 @@ public class ContentServiceImpl implements ContentService {
 
     private final ContentConverter contentConverter;
 
+    @Value("${content.max.limit}")
+    private int maxLimit;
+
     public ContentServiceImpl(ContentRepository contentRepository, ContentConverter contentConverter) {
         this.contentRepository = contentRepository;
         this.contentConverter = contentConverter;
@@ -38,12 +40,9 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public ResponseEntity<ApiResponse<ContentResponse>> createNewContent(CreateNewContentRequest createNewContentRequest) {
 
-        List<ContentEntity> contentCountList = contentRepository.findAll();
-
-        if (contentCountList.size() >= 5) {
+        if (contentRepository.count() >= maxLimit) {
             throw new ContentLimitExceededException();
         }
-
 
         ContentEntity contentEntity = contentConverter.fromCreateNewContentRequestToEntity(createNewContentRequest);
 
@@ -68,8 +67,8 @@ public class ContentServiceImpl implements ContentService {
                 updateNewlyAddedContentRequest.getContentTitle(), updateNewlyAddedContentRequest.getContentDescription()
         );
 
-        contentRepository.findById(
-                updateNewlyAddedContentRequest.getContentId()).orElseThrow(NotFoundContent::new);
+
+        ContentValidation.validateContentExistenceForObject(contentRepository.findById(updateNewlyAddedContentRequest.getContentId()));
 
         ContentEntity contentEntity  = contentConverter.fromUpdateNewlyAddedContentRequestToEntity(updateNewlyAddedContentRequest);
 
@@ -87,7 +86,7 @@ public class ContentServiceImpl implements ContentService {
                 (updateContentAllDetailsRequest.getContentTitle(), updateContentAllDetailsRequest.getContentDescription()
                 );
 
-        contentRepository.findById(updateContentAllDetailsRequest.getContentId()).orElseThrow(NotFoundContent::new);
+        ContentValidation.validateContentExistenceForObject(contentRepository.findById(updateContentAllDetailsRequest.getContentId()));
 
         ContentEntity contentEntity  = contentConverter.fromUpdateContentAllDetailsRequestToEntity(updateContentAllDetailsRequest);
 
@@ -101,14 +100,12 @@ public class ContentServiceImpl implements ContentService {
 
         ContentValidation.contentIdValidation(contentId);
 
-        ContentEntity contentEntity = contentRepository.findById(contentId).orElseThrow(NotFoundContent::new);
+        ContentEntity contentEntity =
+                ContentValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
 
         ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentEntity);
 
-
         return new ResponseEntity<>(ApiResponseHelper.GET_CONTENT(contentResponse), HttpStatus.OK);
-
-
     }
 
     @Override
@@ -129,7 +126,8 @@ public class ContentServiceImpl implements ContentService {
 
         ContentValidation.contentIdValidation(contentId);
 
-        ContentEntity contentEntity = contentRepository.findById(contentId).orElseThrow(NotFoundContent::new);
+        ContentEntity contentEntity =
+                ContentValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
 
         ContentDetailsResponse contentDetailsResponse = contentConverter.fromEntityToContentDetailsResponse(contentEntity);
 
@@ -152,8 +150,9 @@ public class ContentServiceImpl implements ContentService {
 
         ContentValidation.contentIdValidation(visibleContentRequest.getContentId());
 
-        ContentEntity contentEntity = contentRepository.findById(visibleContentRequest.getContentId())
-                .orElseThrow(NotFoundContent::new);
+        ContentEntity contentEntity =
+                ContentValidation.validateContentExistenceForOptionalEntity(
+                        contentRepository.findById(visibleContentRequest.getContentId()));
 
         contentEntity.setVisibleContent(visibleContentRequest.isVisibleContent());
 
@@ -171,9 +170,9 @@ public class ContentServiceImpl implements ContentService {
     public ResponseEntity<ApiResponse<ContentResponse>> unpublishContent(VisibleContentRequest visibleContentRequest) {
         ContentValidation.contentIdValidation(visibleContentRequest.getContentId());
 
-        ContentEntity contentEntity = contentRepository
-                .findById(visibleContentRequest.getContentId()).orElseThrow(NotFoundContent::new);
-
+        ContentEntity contentEntity = ContentValidation.validateContentExistenceForOptionalEntity(
+                contentRepository.findById(visibleContentRequest.getContentId())
+        );
 
         contentEntity.setVisibleContent(visibleContentRequest.isVisibleContent());
 
