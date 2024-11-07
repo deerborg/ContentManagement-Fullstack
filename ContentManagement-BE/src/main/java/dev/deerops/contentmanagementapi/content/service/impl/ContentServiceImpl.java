@@ -4,6 +4,8 @@ import dev.deerops.contentmanagementapi.common.util.result.ApiResponse;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponseHelper;
 import dev.deerops.contentmanagementapi.content.model.converter.ContentConverter;
 import dev.deerops.contentmanagementapi.content.model.dto.request.CreateNewContentRequest;
+import dev.deerops.contentmanagementapi.content.model.dto.request.UpdateContentAllDetailsRequest;
+import dev.deerops.contentmanagementapi.content.model.dto.request.UpdateNewlyAddedContentRequest;
 import dev.deerops.contentmanagementapi.content.model.dto.request.VisibleContentRequest;
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentDetailsResponse;
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentResponse;
@@ -38,7 +40,7 @@ public class ContentServiceImpl implements ContentService {
 
         List<ContentEntity> contentCountList = contentRepository.findAll();
 
-        if (contentCountList.size() >= 5){
+        if (contentCountList.size() >= 5) {
             throw new ContentLimitExceededException();
         }
 
@@ -55,7 +57,43 @@ public class ContentServiceImpl implements ContentService {
                 contentRepository.save(contentEntity)
         );
 
-      return new ResponseEntity<>(ApiResponseHelper.CREATE(contentResponse), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponseHelper.CREATE(contentResponse), HttpStatus.CREATED);
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<ContentResponse>> updateNewlyAddedContent(UpdateNewlyAddedContentRequest updateNewlyAddedContentRequest) {
+        ContentValidation.contentIdValidation(updateNewlyAddedContentRequest.getContentId());
+
+        ContentValidation.contentTitleAndDescriptionValidation(
+                updateNewlyAddedContentRequest.getContentTitle(), updateNewlyAddedContentRequest.getContentDescription()
+        );
+
+        contentRepository.findById(
+                updateNewlyAddedContentRequest.getContentId()).orElseThrow(NotFoundContent::new);
+
+        ContentEntity contentEntity  = contentConverter.fromUpdateNewlyAddedContentRequestToEntity(updateNewlyAddedContentRequest);
+
+        ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentRepository.save(contentEntity));
+
+        return new ResponseEntity<>(ApiResponseHelper.UPDATE(contentResponse), HttpStatus.OK);
+
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<ContentResponse>> updateAllDetailContent(UpdateContentAllDetailsRequest updateContentAllDetailsRequest) {
+        ContentValidation.contentIdValidation(updateContentAllDetailsRequest.getContentId());
+
+        ContentValidation.contentTitleAndDescriptionValidation
+                (updateContentAllDetailsRequest.getContentTitle(), updateContentAllDetailsRequest.getContentDescription()
+                );
+
+        contentRepository.findById(updateContentAllDetailsRequest.getContentId()).orElseThrow(NotFoundContent::new);
+
+        ContentEntity contentEntity  = contentConverter.fromUpdateContentAllDetailsRequestToEntity(updateContentAllDetailsRequest);
+
+        ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentRepository.save(contentEntity));
+
+        return new ResponseEntity<>(ApiResponseHelper.UPDATE(contentResponse), HttpStatus.OK);
     }
 
     @Override
@@ -119,14 +157,35 @@ public class ContentServiceImpl implements ContentService {
 
         contentEntity.setVisibleContent(visibleContentRequest.isVisibleContent());
 
-        if(visibleContentRequest.isVisibleContent()) {
+        if (visibleContentRequest.isVisibleContent()) {
             contentEntity.setPublishDate(LocalDate.now());
         }
 
         ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentRepository.save(contentEntity));
 
-        return new ResponseEntity<>(ApiResponseHelper.UPDATE(contentResponse),HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponseHelper.UPDATE(contentResponse), HttpStatus.OK);
     }
+
+
+    @Override
+    public ResponseEntity<ApiResponse<ContentResponse>> unpublishContent(VisibleContentRequest visibleContentRequest) {
+        ContentValidation.contentIdValidation(visibleContentRequest.getContentId());
+
+        ContentEntity contentEntity = contentRepository
+                .findById(visibleContentRequest.getContentId()).orElseThrow(NotFoundContent::new);
+
+
+        contentEntity.setVisibleContent(visibleContentRequest.isVisibleContent());
+
+        if (!visibleContentRequest.isVisibleContent()) {
+            contentEntity.setUnpublishDate(LocalDate.now());
+        }
+
+        ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentRepository.save(contentEntity));
+
+        return new ResponseEntity<>(ApiResponseHelper.UPDATE(contentResponse), HttpStatus.OK);
+    }
+
 
     @Override
     public ResponseEntity<ApiResponse<List<ContentResponse>>> getJustPublishedContents() {
@@ -147,4 +206,6 @@ public class ContentServiceImpl implements ContentService {
 
         return new ResponseEntity<>(ApiResponseHelper.GET_CONTENT_LIST(contentResponseList), HttpStatus.OK);
     }
+
+
 }

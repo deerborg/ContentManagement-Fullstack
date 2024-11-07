@@ -47,7 +47,7 @@ public class ContentController {
         return contentService.getAllContentInContentDetailsResponse();
     }
 
-    @PutMapping("/update/visibility")
+    @PutMapping("/update/published")
     public ResponseEntity<ApiResponse<ContentResponse>> publishContent(@RequestBody VisibleContentRequest visibleContentRequest) {
         return contentService.publishContent(visibleContentRequest);
     }
@@ -62,5 +62,9 @@ public class ContentController {
         return contentService.getJustUnpublishedContents();
     }
 
+    @PutMapping("/update/unpublished")
+    ResponseEntity<ApiResponse<ContentResponse>> unpublishContent(@RequestBody VisibleContentRequest visibleContentRequest){
+        return contentService.unpublishContent(visibleContentRequest);
+    }
 
 }

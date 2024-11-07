@@ -1,23 +1,13 @@
-package dev.deerops.contentmanagementapi.content.model.entity;
-
-import jakarta.persistence.*;
-import jakarta.transaction.Transactional;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.UuidGenerator;
+package dev.deerops.contentmanagementapi.content.model.dto.request;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "content")
-public class ContentEntity {
-    @Id
-    @GeneratedValue
-    @UuidGenerator
+public class UpdateContentAllDetailsRequest {
+
     private String contentId;
 
     private String contentTitle;
 
-    @Lob
     private String contentDescription;
 
     private LocalDate publishDate;
@@ -26,17 +16,13 @@ public class ContentEntity {
 
     private boolean visibleContent;
 
-
-    public ContentEntity(String contentId, String contentTitle, String contentDescription, LocalDate publishDate, LocalDate unpublishDate, boolean visibleContent) {
+    public UpdateContentAllDetailsRequest(String contentId, String contentTitle, String contentDescription, LocalDate publishDate, LocalDate unpublishDate, boolean visibleContent) {
         this.contentId = contentId;
         this.contentTitle = contentTitle;
         this.contentDescription = contentDescription;
         this.publishDate = publishDate;
         this.unpublishDate = unpublishDate;
         this.visibleContent = visibleContent;
-    }
-
-    public ContentEntity() {
     }
 
     public String getContentId() {
