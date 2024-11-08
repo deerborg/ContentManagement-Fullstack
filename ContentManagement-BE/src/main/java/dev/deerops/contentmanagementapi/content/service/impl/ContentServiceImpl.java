@@ -206,5 +206,14 @@ public class ContentServiceImpl implements ContentService {
         return new ResponseEntity<>(ApiResponseHelper.GET_CONTENT_LIST(contentResponseList), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<ApiResponse<?>> deleteByIdForContent(String contentId) {
+        ContentValidation.contentIdValidation(contentId);
 
+        ContentEntity contentEntity =
+                ContentValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
+
+        contentRepository.delete(contentEntity);
+        return new ResponseEntity<>(ApiResponseHelper.OK(),HttpStatus.OK);
+    }
 }

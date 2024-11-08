@@ -61,8 +61,11 @@ Bu metot, yeni bir içerik oluşturur. İçerik başlığı, açıklaması gibi 
 
 <!-- Turkish Content End -->
 
--- CHOISE UR LANG.
+----------------
 
+CHOISE UR LANG.
+
+----------------
 <!-- English Content -->
 <details>
   <summary>English</summary>

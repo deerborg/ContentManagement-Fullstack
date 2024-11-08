@@ -25,7 +25,6 @@ public class ContentController {
 
     @PostMapping("/private/create")
     public ResponseEntity<ApiResponse<ContentResponse>> createNewContent(@RequestBody CreateNewContentRequest contentRequest) {
-
         return contentService.createNewContent(contentRequest);
     }
 
@@ -79,7 +78,9 @@ public class ContentController {
         return contentService.updateAllDetailContent(updateContentAllDetailsRequest);
     }
 
-
-
-
+    @DeleteMapping("/content/{contentId}")
+    public ResponseEntity<ApiResponse<?>> deleteByIdForContent(@PathVariable String contentId){
+        return contentService.deleteByIdForContent(contentId);
+    }
+    
 }

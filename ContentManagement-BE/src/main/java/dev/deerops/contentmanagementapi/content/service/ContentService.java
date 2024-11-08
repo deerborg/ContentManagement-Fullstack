@@ -35,5 +35,6 @@ public interface ContentService {
 
     ResponseEntity<ApiResponse<ContentResponse>> unpublishContent(VisibleContentRequest visibleContentRequest);
 
+    ResponseEntity<ApiResponse<?>> deleteByIdForContent(String contentId);
 
 }
