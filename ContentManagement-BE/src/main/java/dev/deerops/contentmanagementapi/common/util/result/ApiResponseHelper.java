@@ -24,6 +24,10 @@ public class ApiResponseHelper {
         return new ApiResponse<>(true, "Content list", data);
     }
 
+    public static  ApiResponse OK() {
+        return new ApiResponse<>(true, "Content list");
+    }
+
     // Exceptions Response
 
     public static ExceptionResponse NULL_OR_EMPTY_CONTENT() {
