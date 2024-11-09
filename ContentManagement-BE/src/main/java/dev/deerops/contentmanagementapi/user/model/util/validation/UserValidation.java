@@ -1,5 +1,8 @@
 package dev.deerops.contentmanagementapi.user.model.util.validation;
 
+import dev.deerops.contentmanagementapi.user.model.util.exception.EmptyOrNullFieldForUserException;
+import dev.deerops.contentmanagementapi.user.model.util.exception.InvalidMailFormatException;
+import dev.deerops.contentmanagementapi.user.model.util.exception.InvalidPhoneFormatException;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -20,12 +23,10 @@ public class UserValidation {
                 Object value = field.get(object);
 
                 if (value == null || (value instanceof String && ((String) value).trim().isEmpty())) {
-                    throw new IllegalAccessException(field.getName() + " is null or empty");
+                    throw new EmptyOrNullFieldForUserException();
                 }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Field '" + field.getName() + "' is null or empty", e);
             } catch (Exception e) {
-                throw new RuntimeException("Error while checking field: " + field.getName(), e);
+                throw new EmptyOrNullFieldForUserException();
             }
         }
     }
@@ -33,21 +34,21 @@ public class UserValidation {
     public void emailFormatValidation(String email) {
 
         if (!isValidEmail(email)) {
-            throw new IllegalArgumentException("Invalid email format");
+            throw new InvalidMailFormatException();
         }
     }
 
     public void phoneFormatValidation(String phone) {
 
         if (!isValidPhone(phone)) {
-            throw new IllegalArgumentException("Invalid phone format");
+            throw new InvalidPhoneFormatException();
         }
     }
 
     private boolean isValidEmail(String email) {
 
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email is null or empty");
+            throw new EmptyOrNullFieldForUserException();
         }
 
         String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";

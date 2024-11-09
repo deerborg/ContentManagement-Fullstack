@@ -9,11 +9,11 @@ public class ApiResponseHelper {
     // Success Response
 
     public static <T> ApiResponse<T> CREATE(T data) {
-        return new ApiResponse<>(true, "Create content", data);
+        return new ApiResponse<>(true, "Created data", data);
     }
 
     public static <T> ApiResponse<T>  UPDATE(T data) {
-        return new ApiResponse<>(true, "Update content", data);
+        return new ApiResponse<>(true, "Updated data", data);
     }
 
     public static <T> ApiResponse<T> GET_CONTENT(T data) {
@@ -42,5 +42,16 @@ public class ApiResponseHelper {
         return new ExceptionResponse(false, "Exceeded content, max 5");
     }
 
+    public static ExceptionResponse NULL_OR_EMPTY_USER_FIELD() {
+        return new ExceptionResponse(false, "Null or empty user field");
+    }
+
+    public static ExceptionResponse INVALID_MAIL_FORMAT() {
+        return new ExceptionResponse(false, "Invalid mail format");
+    }
+
+    public static ExceptionResponse INVALID_PHONE_FORMAT() {
+        return new ExceptionResponse(false, "Invalid phone format");
+    }
 
 }
