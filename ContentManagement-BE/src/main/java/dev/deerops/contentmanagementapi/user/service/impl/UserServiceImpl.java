@@ -5,7 +5,7 @@ import dev.deerops.contentmanagementapi.common.util.result.ApiResponseHelper;
 import dev.deerops.contentmanagementapi.user.model.converter.UserConverter;
 import dev.deerops.contentmanagementapi.user.model.dto.request.CreateNewUserRequest;
 import dev.deerops.contentmanagementapi.user.model.dto.response.UserResponse;
-import dev.deerops.contentmanagementapi.user.model.entity.Role;
+import dev.deerops.contentmanagementapi.user.model.entity.enums.Role;
 import dev.deerops.contentmanagementapi.user.model.entity.UserEntity;
 import dev.deerops.contentmanagementapi.user.model.util.validation.UserValidation;
 import dev.deerops.contentmanagementapi.user.repository.UserRepository;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -40,16 +41,21 @@ public class UserServiceImpl implements UserService {
         userValidation.phoneFormatValidation(request.getPhone());
         userValidation.emailFormatValidation(request.getEmail());
 
+
         UserEntity userEntity = userConverter.fromCrateNewUserRequestToEntity(request);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userEntity.setCreationDate(LocalDate.now());
 
         setCreateDefaultAccount(userEntity);
+        createContentSharingLimit(userEntity);
 
         UserResponse userResponse = userConverter.fromEntityToUserResponse(userRepository.save(userEntity));
 
         return new ResponseEntity<>(ApiResponseHelper.CREATE(userResponse), HttpStatus.CREATED);
     }
+
+
+
 
     private void setCreateDefaultAccount(UserEntity userEntity) {
 
@@ -58,6 +64,11 @@ public class UserServiceImpl implements UserService {
         userEntity.setAccountNonLocked(true);
         userEntity.setCredentialsNonExpired(true);
         userEntity.setEnabled(true);
+    }
+    private void createContentSharingLimit(UserEntity userEntity) {
+        if(userEntity.getRole().contains(Role.MODERATOR) || userEntity.getRole().contains(Role.ADMIN) || userEntity.getRole().contains(Role.STAFF)){
+            userEntity.setContentMaxLimit(5);
+        }
     }
 
 

@@ -11,16 +11,23 @@ import dev.deerops.contentmanagementapi.content.model.dto.response.ContentDetail
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentResponse;
 import dev.deerops.contentmanagementapi.content.model.entity.ContentEntity;
 import dev.deerops.contentmanagementapi.content.model.util.exception.ContentLimitExceededException;
+import dev.deerops.contentmanagementapi.content.model.util.exception.NotFoundContent;
 import dev.deerops.contentmanagementapi.content.model.util.validation.ContentValidation;
 import dev.deerops.contentmanagementapi.content.repository.ContentRepository;
 import dev.deerops.contentmanagementapi.content.service.ContentService;
+import dev.deerops.contentmanagementapi.user.model.entity.UserEntity;
+import dev.deerops.contentmanagementapi.user.model.entity.enums.Role;
+import dev.deerops.contentmanagementapi.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ContentServiceImpl implements ContentService {
@@ -29,18 +36,18 @@ public class ContentServiceImpl implements ContentService {
 
     private final ContentConverter contentConverter;
 
-    @Value("${content.max.limit}")
-    private int maxLimit;
+    private final UserRepository userRepository;
 
-    public ContentServiceImpl(ContentRepository contentRepository, ContentConverter contentConverter) {
+    public ContentServiceImpl(ContentRepository contentRepository, ContentConverter contentConverter, UserRepository userRepository) {
         this.contentRepository = contentRepository;
         this.contentConverter = contentConverter;
+        this.userRepository = userRepository;
     }
 
     @Override
     public ResponseEntity<ApiResponse<ContentResponse>> createNewContent(CreateNewContentRequest createNewContentRequest) {
 
-        if (contentRepository.count() >= maxLimit) {
+        if (contentRepository.count() >= loggedInUser().getContentMaxLimit()) {
             throw new ContentLimitExceededException();
         }
 
@@ -51,6 +58,8 @@ public class ContentServiceImpl implements ContentService {
         );
 
         contentEntity.setVisibleContent(false);
+
+        contentEntity.setUser(loggedInUser());
 
         ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(
                 contentRepository.save(contentEntity)
@@ -68,11 +77,11 @@ public class ContentServiceImpl implements ContentService {
         );
 
 
-        ContentValidation.validateContentExistenceForObject(contentRepository.findById(updateNewlyAddedContentRequest.getContentId()));
+        ContentEntity contentEntity = getContentOrThrowIfNotFound(updateNewlyAddedContentRequest.getContentId());
 
-        ContentEntity contentEntity  = contentConverter.fromUpdateNewlyAddedContentRequestToEntity(updateNewlyAddedContentRequest);
+        ContentEntity updatedContentEntity = contentConverter.fromUpdateNewlyAddedContentRequestToEntity(contentEntity, updateNewlyAddedContentRequest);
 
-        ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentRepository.save(contentEntity));
+        ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentRepository.saveAndFlush(updatedContentEntity));
 
         return new ResponseEntity<>(ApiResponseHelper.UPDATE(contentResponse), HttpStatus.OK);
 
@@ -86,11 +95,11 @@ public class ContentServiceImpl implements ContentService {
                 (updateContentAllDetailsRequest.getContentTitle(), updateContentAllDetailsRequest.getContentDescription()
                 );
 
-        ContentValidation.validateContentExistenceForObject(contentRepository.findById(updateContentAllDetailsRequest.getContentId()));
+        ContentEntity contentEntity = getContentOrThrowIfNotFound(updateContentAllDetailsRequest.getContentId());
 
-        ContentEntity contentEntity  = contentConverter.fromUpdateContentAllDetailsRequestToEntity(updateContentAllDetailsRequest);
+        ContentEntity updateContentEntity = contentConverter.fromUpdateContentAllDetailsRequestToEntity(contentEntity, updateContentAllDetailsRequest);
 
-        ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentRepository.save(contentEntity));
+        ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentRepository.save(updateContentEntity));
 
         return new ResponseEntity<>(ApiResponseHelper.UPDATE(contentResponse), HttpStatus.OK);
     }
@@ -214,6 +223,20 @@ public class ContentServiceImpl implements ContentService {
                 ContentValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
 
         contentRepository.delete(contentEntity);
-        return new ResponseEntity<>(ApiResponseHelper.OK(),HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponseHelper.OK(), HttpStatus.OK);
+    }
+
+    private ContentEntity getContentOrThrowIfNotFound(String contentId) {
+        return contentRepository.findById(contentId).orElseThrow(NotFoundContent::new);
+    }
+
+    private UserEntity loggedInUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserEntity) {
+            return (UserEntity) authentication.getPrincipal();
+        }
+
+        throw new RuntimeException("You are not logged in");
     }
 }

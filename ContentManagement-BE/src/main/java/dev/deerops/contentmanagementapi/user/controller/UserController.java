@@ -3,11 +3,15 @@ package dev.deerops.contentmanagementapi.user.controller;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponse;
 import dev.deerops.contentmanagementapi.user.model.dto.request.CreateNewUserRequest;
 import dev.deerops.contentmanagementapi.user.model.dto.response.UserResponse;
+import dev.deerops.contentmanagementapi.user.model.entity.UserEntity;
 import dev.deerops.contentmanagementapi.user.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -22,4 +26,5 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> createNewUser(CreateNewUserRequest request){
         return userService.createNewUser(request);
     }
+
 }

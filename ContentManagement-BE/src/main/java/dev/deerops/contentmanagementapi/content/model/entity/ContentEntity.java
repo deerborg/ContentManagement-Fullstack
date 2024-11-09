@@ -1,5 +1,7 @@
 package dev.deerops.contentmanagementapi.content.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.deerops.contentmanagementapi.user.model.entity.UserEntity;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import org.hibernate.annotations.Fetch;
@@ -18,6 +20,7 @@ public class ContentEntity {
     private String contentTitle;
 
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String contentDescription;
 
     private LocalDate publishDate;
@@ -26,17 +29,31 @@ public class ContentEntity {
 
     private boolean visibleContent;
 
+    @ManyToOne
+    @JsonIgnore
+    private UserEntity user;
 
-    public ContentEntity(String contentId, String contentTitle, String contentDescription, LocalDate publishDate, LocalDate unpublishDate, boolean visibleContent) {
+    public ContentEntity(String contentId, String contentTitle, String contentDescription, LocalDate publishDate, LocalDate unpublishDate, boolean visibleContent, UserEntity user) {
         this.contentId = contentId;
         this.contentTitle = contentTitle;
         this.contentDescription = contentDescription;
         this.publishDate = publishDate;
         this.unpublishDate = unpublishDate;
         this.visibleContent = visibleContent;
+        this.user = user;
     }
 
+
+
     public ContentEntity() {
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 
     public String getContentId() {
@@ -85,5 +102,18 @@ public class ContentEntity {
 
     public void setVisibleContent(boolean visibleContent) {
         this.visibleContent = visibleContent;
+    }
+
+    @Override
+    public String toString() {
+        return "ContentEntity{" +
+                "contentId='" + contentId + '\'' +
+                ", contentTitle='" + contentTitle + '\'' +
+                ", contentDescription='" + contentDescription + '\'' +
+                ", publishDate=" + publishDate +
+                ", unpublishDate=" + unpublishDate +
+                ", visibleContent=" + visibleContent +
+                ", user=" + user +
+                '}';
     }
 }
