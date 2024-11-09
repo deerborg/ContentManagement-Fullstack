@@ -3,6 +3,8 @@ package dev.deerops.contentmanagementapi.user.model.util.validation;
 import dev.deerops.contentmanagementapi.user.model.util.exception.EmptyOrNullFieldForUserException;
 import dev.deerops.contentmanagementapi.user.model.util.exception.InvalidMailFormatException;
 import dev.deerops.contentmanagementapi.user.model.util.exception.InvalidPhoneFormatException;
+import dev.deerops.contentmanagementapi.user.model.util.exception.UnUniqueUsernameException;
+import dev.deerops.contentmanagementapi.user.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -11,6 +13,12 @@ import java.util.regex.Pattern;
 
 @Component
 public class UserValidation {
+
+    private final UserRepository userRepository;
+
+    public UserValidation(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public void checkAllParameterForRequestClass(Object object) {
 
@@ -42,6 +50,12 @@ public class UserValidation {
 
         if (!isValidPhone(phone)) {
             throw new InvalidPhoneFormatException();
+        }
+    }
+
+    public void uniqueUserNameValidation(String userName) {
+        if(userRepository.existsByUsername(userName)) {
+            throw new UnUniqueUsernameException();
         }
     }
 

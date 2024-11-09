@@ -24,6 +24,14 @@ public class ApiResponseHelper {
         return new ApiResponse<>(true, "Content list", data);
     }
 
+    public static <T> ApiResponse <T> GET_USER(T data) {
+        return new ApiResponse<>(true, "User is", data);
+    }
+
+    public static <T>  ApiResponse <T> ONLINE_USER_LIST(T data) {
+        return new ApiResponse<>(true, "Content list",data);
+    }
+
     public static  ApiResponse OK() {
         return new ApiResponse<>(true, "Content list");
     }
@@ -54,4 +62,11 @@ public class ApiResponseHelper {
         return new ExceptionResponse(false, "Invalid phone format");
     }
 
+    public static ExceptionResponse UN_UNIQUE_USERNAME() {
+        return new ExceptionResponse(false, "Username already exist");
+    }
+
+    public static ExceptionResponse NOT_FOUND_USER() {
+        return new ExceptionResponse(false, "Not found user");
+    }
 }
