@@ -24,34 +24,30 @@ public class ContentConverter {
     }
 
 
-    public ContentEntity fromUpdateNewlyAddedContentRequestToEntity(UpdateNewlyAddedContentRequest request) {
-        ContentEntity contentEntity = new ContentEntity();
+    public ContentEntity fromUpdateNewlyAddedContentRequestToEntity(ContentEntity existEntity,UpdateNewlyAddedContentRequest request) {
 
-        contentEntity.setContentId(request.getContentId());
+        existEntity.setContentTitle(request.getContentTitle());
 
-        contentEntity.setContentTitle(request.getContentTitle());
+        existEntity.setContentDescription(request.getContentDescription());
 
-        contentEntity.setContentDescription(request.getContentDescription());
-
-        return contentEntity;
+        return existEntity;
     }
 
-    public ContentEntity fromUpdateContentAllDetailsRequestToEntity(UpdateContentAllDetailsRequest request) {
-        ContentEntity contentEntity = new ContentEntity();
+    public ContentEntity fromUpdateContentAllDetailsRequestToEntity(ContentEntity existEntity,UpdateContentAllDetailsRequest request) {
 
-        contentEntity.setContentId(request.getContentId());
+        existEntity.setContentId(request.getContentId());
 
-        contentEntity.setVisibleContent(request.isVisibleContent());
+        existEntity.setVisibleContent(request.isVisibleContent());
 
-        contentEntity.setPublishDate(request.getPublishDate());
+        existEntity.setPublishDate(request.getPublishDate());
 
-        contentEntity.setUnpublishDate(request.getUnpublishDate());
+        existEntity.setUnpublishDate(request.getUnpublishDate());
 
-        contentEntity.setContentTitle(request.getContentTitle());
+        existEntity.setContentTitle(request.getContentTitle());
 
-        contentEntity.setContentDescription(request.getContentDescription());
+        existEntity.setContentDescription(request.getContentDescription());
 
-        return contentEntity;
+        return existEntity;
     }
 
 
