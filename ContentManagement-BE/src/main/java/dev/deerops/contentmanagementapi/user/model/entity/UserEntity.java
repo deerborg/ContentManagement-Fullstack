@@ -32,6 +32,7 @@ public class UserEntity implements UserDetails {
 
     private String address;
 
+    @Column(unique = true)
     private String username;
 
     private String password;
@@ -48,6 +49,10 @@ public class UserEntity implements UserDetails {
 
     private boolean enabled;
 
+    private boolean online;
+
+    private LocalDate lastLoginDate;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private List<Role> role;
@@ -59,7 +64,7 @@ public class UserEntity implements UserDetails {
     @JsonIgnore
     private List<ContentEntity> contentEntityList;
 
-    public UserEntity(String userId, String name, String lastName, String email, String phone, String address, String username, String password, Integer contentMaxLimit, LocalDate creationDate, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, List<Role> role, UserType userType, List<ContentEntity> contentEntityList) {
+    public UserEntity(String userId, String name, String lastName, String email, String phone, String address, String username, String password, Integer contentMaxLimit, LocalDate creationDate, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, boolean online, LocalDate lastLoginDate, List<Role> role, UserType userType, List<ContentEntity> contentEntityList) {
         this.userId = userId;
         this.name = name;
         this.lastName = lastName;
@@ -74,6 +79,8 @@ public class UserEntity implements UserDetails {
         this.accountNonLocked = accountNonLocked;
         this.credentialsNonExpired = credentialsNonExpired;
         this.enabled = enabled;
+        this.online = online;
+        this.lastLoginDate = lastLoginDate;
         this.role = role;
         this.userType = userType;
         this.contentEntityList = contentEntityList;
@@ -116,6 +123,22 @@ public class UserEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public LocalDate getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(LocalDate lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
     }
 
     public UserType getUserType() {

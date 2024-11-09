@@ -4,9 +4,11 @@ import dev.deerops.contentmanagementapi.common.util.result.ApiResponse;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponseHelper;
 import dev.deerops.contentmanagementapi.user.model.converter.UserConverter;
 import dev.deerops.contentmanagementapi.user.model.dto.request.CreateNewUserRequest;
+import dev.deerops.contentmanagementapi.user.model.dto.response.UserDetailsResponse;
 import dev.deerops.contentmanagementapi.user.model.dto.response.UserResponse;
 import dev.deerops.contentmanagementapi.user.model.entity.enums.Role;
 import dev.deerops.contentmanagementapi.user.model.entity.UserEntity;
+import dev.deerops.contentmanagementapi.user.model.util.exception.NotFoundUserException;
 import dev.deerops.contentmanagementapi.user.model.util.validation.UserValidation;
 import dev.deerops.contentmanagementapi.user.repository.UserRepository;
 import dev.deerops.contentmanagementapi.user.service.UserService;
@@ -35,12 +37,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponse<UserResponse>> createNewUser(CreateNewUserRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(CreateNewUserRequest request) {
 
-        userValidation.checkAllParameterForRequestClass(request);
-        userValidation.phoneFormatValidation(request.getPhone());
-        userValidation.emailFormatValidation(request.getEmail());
-
+        validateUserRequest(request);
 
         UserEntity userEntity = userConverter.fromCrateNewUserRequestToEntity(request);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
@@ -54,8 +53,18 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(ApiResponseHelper.CREATE(userResponse), HttpStatus.CREATED);
     }
 
+    @Override
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllOnlineUser() {
+        List<UserResponse> userResponseList = userRepository.findByOnlineTrue().stream().map(userConverter::fromEntityToUserResponse).toList();
+        return new ResponseEntity<>(ApiResponseHelper.ONLINE_USER_LIST(userResponseList), HttpStatus.OK);
+    }
 
-
+    @Override
+    public ResponseEntity<ApiResponse<UserDetailsResponse>> getUserDetailsByUseNamed(String username) {
+        UserDetailsResponse userDetailsResponse =
+                userConverter.fromEntityToUserDetailsResponse(findByUsernameOrThrow(username));
+        return new ResponseEntity<>(ApiResponseHelper.GET_USER(userDetailsResponse),HttpStatus.OK);
+    }
 
     private void setCreateDefaultAccount(UserEntity userEntity) {
 
@@ -69,6 +78,21 @@ public class UserServiceImpl implements UserService {
         if(userEntity.getRole().contains(Role.MODERATOR) || userEntity.getRole().contains(Role.ADMIN) || userEntity.getRole().contains(Role.STAFF)){
             userEntity.setContentMaxLimit(5);
         }
+    }
+
+    private void validateUserRequest(CreateNewUserRequest request) {
+        userValidation.checkAllParameterForRequestClass(request);
+        userValidation.phoneFormatValidation(request.getPhone());
+        userValidation.emailFormatValidation(request.getEmail());
+        userValidation.uniqueUserNameValidation(request.getUsername());
+    }
+
+    private UserEntity findByUsernameOrThrow(String username){
+        UserEntity userEntity = userRepository.findByUsername(username);
+        if (userEntity == null) {
+            throw new NotFoundUserException();
+        }
+        return userEntity;
     }
 
 
