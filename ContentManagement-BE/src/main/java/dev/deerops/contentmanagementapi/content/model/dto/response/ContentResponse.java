@@ -1,17 +1,30 @@
 package dev.deerops.contentmanagementapi.content.model.dto.response;
 
+import java.time.LocalDate;
+
 public class ContentResponse {
 
     private String contentTitle;
 
     private String contentDescription;
 
+    private LocalDate publishDate;
+
     public ContentResponse() {
     }
 
-    public ContentResponse(String contentTitle, String contentDescription) {
+    public ContentResponse(String contentTitle, String contentDescription, LocalDate publishDate) {
         this.contentTitle = contentTitle;
         this.contentDescription = contentDescription;
+        this.publishDate = publishDate;
+    }
+
+    public LocalDate getPublishDate() {
+        return publishDate;
+    }
+
+    public void setPublishDate(LocalDate publishDate) {
+        this.publishDate = publishDate;
     }
 
     public String getContentTitle() {

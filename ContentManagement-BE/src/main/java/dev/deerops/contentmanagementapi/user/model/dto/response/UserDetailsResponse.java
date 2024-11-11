@@ -11,6 +11,7 @@ package dev.deerops.contentmanagementapi.user.model.dto.response;
 import jakarta.persistence.Column;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class UserDetailsResponse {
 
@@ -42,12 +43,10 @@ public class UserDetailsResponse {
 
     private boolean online;
 
-    private LocalDate lastLoginDate;
+    private LocalDateTime lastLoginDate;
 
-    public UserDetailsResponse() {
-    }
 
-    public UserDetailsResponse(String userId, String name, String lastName, String email, String phone, String address, String username, Integer contentMaxLimit, LocalDate creationDate, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, boolean online, LocalDate lastLoginDate) {
+    public UserDetailsResponse(String userId, String name, String lastName, String email, String phone, String address, String username, Integer contentMaxLimit, LocalDate creationDate, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, boolean online, LocalDateTime lastLoginDate) {
         this.userId = userId;
         this.name = name;
         this.lastName = lastName;
@@ -64,6 +63,10 @@ public class UserDetailsResponse {
         this.online = online;
         this.lastLoginDate = lastLoginDate;
     }
+
+    public UserDetailsResponse() {
+    }
+
 
     public String getUserId() {
         return userId;
@@ -177,11 +180,11 @@ public class UserDetailsResponse {
         this.online = online;
     }
 
-    public LocalDate getLastLoginDate() {
+    public LocalDateTime getLastLoginDate() {
         return lastLoginDate;
     }
 
-    public void setLastLoginDate(LocalDate lastLoginDate) {
+    public void setLastLoginDate(LocalDateTime lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
     }
 }
