@@ -1,9 +1,13 @@
 package dev.deerops.contentmanagementapi.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -16,6 +20,9 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(allowedOrigin) // React frontend'in izinli olduğu domain
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
-                .allowedHeaders("Authorization", "Content-Type");
+                .allowedHeaders("Authorization", "Content-Type")
+                .allowCredentials(true);
     }
+
+
 }

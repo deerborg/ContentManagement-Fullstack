@@ -1,51 +1,25 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+
 import "./App.css";
-import axios from "axios";
+import Navbar from "./componets/Navbar/Navbar";
+import { Route, Routes } from "react-router-dom";
+import Home from "./componets/Home/Home";
+import Dashboard from "./componets/Dashboard/Dashboard";
+import Footer from "./componets/Footer/Footer";
+import Blog from "./componets/Blog/Blog";
 
 function App() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/login", // Backend login URL
-        { username, password },
-        { withCredentials: true }
-      );
-      console.log("Login successful", response);
-      // Giriş başarılı ise yönlendirme veya işlem yapılabilir
-    } catch (error) {
-      console.error("Login failed", error);
-    }
-  };
+  const [count, setCount] = useState(0);
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-    </div>
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/blog" element={<Blog />} />
+      </Routes>
+      <Footer />
+    </>
   );
 }
 

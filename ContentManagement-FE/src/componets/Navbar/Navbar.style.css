@@ -1,0 +1,29 @@
+.navbar-section {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.navbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 7%;
+  background-color: var(--primary-color);
+  color: var(--fourt-color);
+  padding: 3rem 0;
+}
+
+.navbar li a {
+  color: var(--fourt-color);
+  border: 1px solid var(--fourt-color);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.navbar li a:hover {
+  color: var(--secondary-color);
+  background-color: var(--fourt-color);
+  font-weight: bold;
+}

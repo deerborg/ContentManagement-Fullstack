@@ -1,0 +1,18 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  background-color: var(--fourt-color);
+  align-items: center;
+  justify-content: center;
+  margin: 10rem auto;
+}
+
+.welcome-container {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+}

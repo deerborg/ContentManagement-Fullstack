@@ -36,12 +36,10 @@ public class ContentServiceImpl implements ContentService {
 
     private final ContentConverter contentConverter;
 
-    private final UserRepository userRepository;
-
-    public ContentServiceImpl(ContentRepository contentRepository, ContentConverter contentConverter, UserRepository userRepository) {
+    public ContentServiceImpl(ContentRepository contentRepository, ContentConverter contentConverter) {
         this.contentRepository = contentRepository;
         this.contentConverter = contentConverter;
-        this.userRepository = userRepository;
+
     }
 
     @Override

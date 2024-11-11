@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class UserEntity implements UserDetails {
 
     private boolean online;
 
-    private LocalDate lastLoginDate;
+    private LocalDateTime lastLoginDate;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -64,7 +65,13 @@ public class UserEntity implements UserDetails {
     @JsonIgnore
     private List<ContentEntity> contentEntityList;
 
-    public UserEntity(String userId, String name, String lastName, String email, String phone, String address, String username, String password, Integer contentMaxLimit, LocalDate creationDate, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, boolean online, LocalDate lastLoginDate, List<Role> role, UserType userType, List<ContentEntity> contentEntityList) {
+
+
+    public UserEntity() {
+
+    }
+
+    public UserEntity(String userId, String name, String lastName, String email, String phone, String address, String username, String password, Integer contentMaxLimit, LocalDate creationDate, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, boolean online, LocalDateTime lastLoginDate, List<Role> role, UserType userType, List<ContentEntity> contentEntityList) {
         this.userId = userId;
         this.name = name;
         this.lastName = lastName;
@@ -84,10 +91,6 @@ public class UserEntity implements UserDetails {
         this.role = role;
         this.userType = userType;
         this.contentEntityList = contentEntityList;
-    }
-
-    public UserEntity() {
-
     }
 
     @Override
@@ -125,11 +128,12 @@ public class UserEntity implements UserDetails {
         return enabled;
     }
 
-    public LocalDate getLastLoginDate() {
+
+    public LocalDateTime getLastLoginDate() {
         return lastLoginDate;
     }
 
-    public void setLastLoginDate(LocalDate lastLoginDate) {
+    public void setLastLoginDate(LocalDateTime lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
     }
 

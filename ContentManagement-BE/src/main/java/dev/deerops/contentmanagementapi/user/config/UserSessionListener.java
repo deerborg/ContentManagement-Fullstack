@@ -16,6 +16,7 @@ import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 public class UserSessionListener {
@@ -42,7 +43,7 @@ public class UserSessionListener {
         UserEntity user = userRepository.findByUsername(username);
         if (user != null) {
             user.setOnline(false);
-            user.setLastLoginDate(LocalDate.now());
+            user.setLastLoginDate(LocalDateTime.now());
             userRepository.save(user);
         }
     }

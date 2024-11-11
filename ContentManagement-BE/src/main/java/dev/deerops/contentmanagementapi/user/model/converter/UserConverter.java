@@ -1,6 +1,7 @@
 package dev.deerops.contentmanagementapi.user.model.converter;
 
 import dev.deerops.contentmanagementapi.user.model.dto.request.CreateNewUserRequest;
+import dev.deerops.contentmanagementapi.user.model.dto.request.LoginRequest;
 import dev.deerops.contentmanagementapi.user.model.dto.response.UserDetailsResponse;
 import dev.deerops.contentmanagementapi.user.model.dto.response.UserResponse;
 import dev.deerops.contentmanagementapi.user.model.entity.UserEntity;
@@ -30,6 +31,17 @@ public class UserConverter {
         return userEntity;
     }
 
+    public UserEntity fromLoginRequestToEntity(LoginRequest request){
+
+        UserEntity userEntity = new UserEntity();
+
+        userEntity.setUsername(request.getUsername());
+
+        userEntity.setPassword(request.getPassword());
+
+        return userEntity;
+    }
+
     public UserResponse fromEntityToUserResponse(UserEntity entity){
 
         UserResponse userResponse = new UserResponse();
@@ -42,6 +54,7 @@ public class UserConverter {
 
         return userResponse;
     }
+
 
     public UserDetailsResponse fromEntityToUserDetailsResponse(UserEntity entity){
 

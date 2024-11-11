@@ -4,6 +4,7 @@ import dev.deerops.contentmanagementapi.common.util.result.ApiResponse;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponseHelper;
 import dev.deerops.contentmanagementapi.user.model.converter.UserConverter;
 import dev.deerops.contentmanagementapi.user.model.dto.request.CreateNewUserRequest;
+import dev.deerops.contentmanagementapi.user.model.dto.request.LoginRequest;
 import dev.deerops.contentmanagementapi.user.model.dto.response.UserDetailsResponse;
 import dev.deerops.contentmanagementapi.user.model.dto.response.UserResponse;
 import dev.deerops.contentmanagementapi.user.model.entity.enums.Role;
@@ -14,6 +15,10 @@ import dev.deerops.contentmanagementapi.user.repository.UserRepository;
 import dev.deerops.contentmanagementapi.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +39,22 @@ public class UserServiceImpl implements UserService {
         this.userConverter = userConverter;
         this.passwordEncoder = passwordEncoder;
         this.userValidation = userValidation;
+
+    }
+
+
+    @Override
+    public ResponseEntity<ApiResponse<UserResponse>> authenticateUser(LoginRequest loginRequest) {
+
+        UserEntity userEntity = userRepository.findByUsername(loginRequest.getUsername());
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), userEntity.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        UserResponse userResponse = userConverter.fromEntityToUserResponse(userEntity);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", userResponse));
+
     }
 
     @Override
@@ -63,8 +84,9 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ApiResponse<UserDetailsResponse>> getUserDetailsByUseNamed(String username) {
         UserDetailsResponse userDetailsResponse =
                 userConverter.fromEntityToUserDetailsResponse(findByUsernameOrThrow(username));
-        return new ResponseEntity<>(ApiResponseHelper.GET_USER(userDetailsResponse),HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponseHelper.GET_USER(userDetailsResponse), HttpStatus.OK);
     }
+
 
     private void setCreateDefaultAccount(UserEntity userEntity) {
 
@@ -74,8 +96,9 @@ public class UserServiceImpl implements UserService {
         userEntity.setCredentialsNonExpired(true);
         userEntity.setEnabled(true);
     }
+
     private void createContentSharingLimit(UserEntity userEntity) {
-        if(userEntity.getRole().contains(Role.MODERATOR) || userEntity.getRole().contains(Role.ADMIN) || userEntity.getRole().contains(Role.STAFF)){
+        if (userEntity.getRole().contains(Role.MODERATOR) || userEntity.getRole().contains(Role.ADMIN) || userEntity.getRole().contains(Role.STAFF)) {
             userEntity.setContentMaxLimit(5);
         }
     }
@@ -87,7 +110,7 @@ public class UserServiceImpl implements UserService {
         userValidation.uniqueUserNameValidation(request.getUsername());
     }
 
-    private UserEntity findByUsernameOrThrow(String username){
+    private UserEntity findByUsernameOrThrow(String username) {
         UserEntity userEntity = userRepository.findByUsername(username);
         if (userEntity == null) {
             throw new NotFoundUserException();

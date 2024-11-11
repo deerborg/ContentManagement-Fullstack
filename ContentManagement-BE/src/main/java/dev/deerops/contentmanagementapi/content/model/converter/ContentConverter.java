@@ -58,6 +58,8 @@ public class ContentConverter {
 
         contentResponse.setContentDescription(contentEntity.getContentDescription());
 
+        contentResponse.setPublishDate(contentEntity.getPublishDate());
+
         return contentResponse;
     }
 
