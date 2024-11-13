@@ -1,5 +1,17 @@
+
+/*
+ * Copyright (c) 2024. Furkan Aydemir.
+ *
+ * This file is part of the ContentManagement project. Unauthorized copying, distribution, or transmission of this file,
+ * in any form, is strictly prohibited without prior written permission from Furkan Aydemir.
+ *
+ */
+
 package dev.deerops.contentmanagementapi.content.service.impl;
 
+import dev.deerops.contenthelper.validation.validExcepiton.ContentLimitExceededException;
+import dev.deerops.contenthelper.validation.validExcepiton.NotFoundContent;
+import dev.deerops.contenthelper.validation.validation.EntityValidation;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponse;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponseHelper;
 import dev.deerops.contentmanagementapi.content.model.converter.ContentConverter;
@@ -10,15 +22,9 @@ import dev.deerops.contentmanagementapi.content.model.dto.request.VisibleContent
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentDetailsResponse;
 import dev.deerops.contentmanagementapi.content.model.dto.response.ContentResponse;
 import dev.deerops.contentmanagementapi.content.model.entity.ContentEntity;
-import dev.deerops.contentmanagementapi.content.model.util.exception.ContentLimitExceededException;
-import dev.deerops.contentmanagementapi.content.model.util.exception.NotFoundContent;
-import dev.deerops.contentmanagementapi.content.model.util.validation.ContentValidation;
 import dev.deerops.contentmanagementapi.content.repository.ContentRepository;
 import dev.deerops.contentmanagementapi.content.service.ContentService;
 import dev.deerops.contentmanagementapi.user.model.entity.UserEntity;
-import dev.deerops.contentmanagementapi.user.model.entity.enums.Role;
-import dev.deerops.contentmanagementapi.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,7 +33,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
+
 
 @Service
 public class ContentServiceImpl implements ContentService {
@@ -36,10 +42,13 @@ public class ContentServiceImpl implements ContentService {
 
     private final ContentConverter contentConverter;
 
-    public ContentServiceImpl(ContentRepository contentRepository, ContentConverter contentConverter) {
+    private final EntityValidation entityValidation;
+
+
+    public ContentServiceImpl(ContentRepository contentRepository, ContentConverter contentConverter, EntityValidation entityValidation) {
         this.contentRepository = contentRepository;
         this.contentConverter = contentConverter;
-
+        this.entityValidation = entityValidation;
     }
 
     @Override
@@ -51,9 +60,9 @@ public class ContentServiceImpl implements ContentService {
 
         ContentEntity contentEntity = contentConverter.fromCreateNewContentRequestToEntity(createNewContentRequest);
 
-        ContentValidation.contentTitleAndDescriptionValidation(
-                contentEntity.getContentTitle(), contentEntity.getContentDescription()
-        );
+
+        entityValidation.contentTitleAndDescriptionValidation(
+                contentEntity.getContentTitle(), contentEntity.getContentDescription());
 
         contentEntity.setVisibleContent(false);
 
@@ -68,12 +77,11 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public ResponseEntity<ApiResponse<ContentResponse>> updateNewlyAddedContent(UpdateNewlyAddedContentRequest updateNewlyAddedContentRequest) {
-        ContentValidation.contentIdValidation(updateNewlyAddedContentRequest.getContentId());
+        entityValidation.contentIdValidation(updateNewlyAddedContentRequest.getContentId());
 
-        ContentValidation.contentTitleAndDescriptionValidation(
-                updateNewlyAddedContentRequest.getContentTitle(), updateNewlyAddedContentRequest.getContentDescription()
-        );
 
+        entityValidation.contentTitleAndDescriptionValidation(
+                updateNewlyAddedContentRequest.getContentTitle(), updateNewlyAddedContentRequest.getContentDescription());
 
         ContentEntity contentEntity = getContentOrThrowIfNotFound(updateNewlyAddedContentRequest.getContentId());
 
@@ -87,11 +95,10 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public ResponseEntity<ApiResponse<ContentResponse>> updateAllDetailContent(UpdateContentAllDetailsRequest updateContentAllDetailsRequest) {
-        ContentValidation.contentIdValidation(updateContentAllDetailsRequest.getContentId());
+        entityValidation.contentIdValidation(updateContentAllDetailsRequest.getContentId());
 
-        ContentValidation.contentTitleAndDescriptionValidation
-                (updateContentAllDetailsRequest.getContentTitle(), updateContentAllDetailsRequest.getContentDescription()
-                );
+        entityValidation.contentTitleAndDescriptionValidation(
+                updateContentAllDetailsRequest.getContentTitle(), updateContentAllDetailsRequest.getContentDescription());
 
         ContentEntity contentEntity = getContentOrThrowIfNotFound(updateContentAllDetailsRequest.getContentId());
 
@@ -105,10 +112,10 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public ResponseEntity<ApiResponse<ContentResponse>> getContentByContentIdForPath(String contentId) {
 
-        ContentValidation.contentIdValidation(contentId);
+        entityValidation.contentIdValidation(contentId);
 
         ContentEntity contentEntity =
-                ContentValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
+                entityValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
 
         ContentResponse contentResponse = contentConverter.fromEntityToContentResponse(contentEntity);
 
@@ -131,10 +138,10 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public ResponseEntity<ApiResponse<ContentDetailsResponse>> getContentDetailsByContentIdForPath(String contentId) {
 
-        ContentValidation.contentIdValidation(contentId);
+       entityValidation.contentIdValidation(contentId);
 
         ContentEntity contentEntity =
-                ContentValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
+                entityValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
 
         ContentDetailsResponse contentDetailsResponse = contentConverter.fromEntityToContentDetailsResponse(contentEntity);
 
@@ -155,10 +162,10 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public ResponseEntity<ApiResponse<ContentResponse>> publishContent(VisibleContentRequest visibleContentRequest) {
 
-        ContentValidation.contentIdValidation(visibleContentRequest.getContentId());
+        entityValidation.contentIdValidation(visibleContentRequest.getContentId());
 
         ContentEntity contentEntity =
-                ContentValidation.validateContentExistenceForOptionalEntity(
+                entityValidation.validateContentExistenceForOptionalEntity(
                         contentRepository.findById(visibleContentRequest.getContentId()));
 
         contentEntity.setVisibleContent(visibleContentRequest.isVisibleContent());
@@ -175,9 +182,9 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public ResponseEntity<ApiResponse<ContentResponse>> unpublishContent(VisibleContentRequest visibleContentRequest) {
-        ContentValidation.contentIdValidation(visibleContentRequest.getContentId());
+        entityValidation.contentIdValidation(visibleContentRequest.getContentId());
 
-        ContentEntity contentEntity = ContentValidation.validateContentExistenceForOptionalEntity(
+        ContentEntity contentEntity = entityValidation.validateContentExistenceForOptionalEntity(
                 contentRepository.findById(visibleContentRequest.getContentId())
         );
 
@@ -215,10 +222,10 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public ResponseEntity<ApiResponse<?>> deleteByIdForContent(String contentId) {
-        ContentValidation.contentIdValidation(contentId);
+        entityValidation.contentIdValidation(contentId);
 
         ContentEntity contentEntity =
-                ContentValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
+                entityValidation.validateContentExistenceForOptionalEntity(contentRepository.findById(contentId));
 
         contentRepository.delete(contentEntity);
         return new ResponseEntity<>(ApiResponseHelper.OK(), HttpStatus.OK);

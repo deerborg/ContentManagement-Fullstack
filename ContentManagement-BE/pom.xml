@@ -55,6 +55,13 @@
             <version>2.5.0</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>dev.deerops</groupId>
+            <artifactId>ContentHelper</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <build>

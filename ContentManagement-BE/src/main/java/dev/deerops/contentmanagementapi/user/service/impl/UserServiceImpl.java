@@ -1,5 +1,9 @@
 package dev.deerops.contentmanagementapi.user.service.impl;
 
+
+import dev.deerops.contenthelper.validation.validExcepiton.NotFoundUserException;
+import dev.deerops.contenthelper.validation.validExcepiton.UnUniqueUsernameException;
+import dev.deerops.contenthelper.validation.validation.EntityValidation;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponse;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponseHelper;
 import dev.deerops.contentmanagementapi.user.model.converter.UserConverter;
@@ -9,16 +13,10 @@ import dev.deerops.contentmanagementapi.user.model.dto.response.UserDetailsRespo
 import dev.deerops.contentmanagementapi.user.model.dto.response.UserResponse;
 import dev.deerops.contentmanagementapi.user.model.entity.enums.Role;
 import dev.deerops.contentmanagementapi.user.model.entity.UserEntity;
-import dev.deerops.contentmanagementapi.user.model.util.exception.NotFoundUserException;
-import dev.deerops.contentmanagementapi.user.model.util.validation.UserValidation;
 import dev.deerops.contentmanagementapi.user.repository.UserRepository;
 import dev.deerops.contentmanagementapi.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,16 +30,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserConverter userConverter;
     private final PasswordEncoder passwordEncoder;
-    private final UserValidation userValidation;
+    private final EntityValidation entityValidation;
 
-    public UserServiceImpl(UserRepository userRepository, UserConverter userConverter, PasswordEncoder passwordEncoder, UserValidation userValidation) {
+
+    public UserServiceImpl(UserRepository userRepository, UserConverter userConverter, PasswordEncoder passwordEncoder, EntityValidation entityValidation) {
         this.userRepository = userRepository;
         this.userConverter = userConverter;
         this.passwordEncoder = passwordEncoder;
-        this.userValidation = userValidation;
-
+        this.entityValidation = entityValidation;
     }
-
 
     @Override
     public ResponseEntity<ApiResponse<UserResponse>> authenticateUser(LoginRequest loginRequest) {
@@ -104,10 +101,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateUserRequest(CreateNewUserRequest request) {
-        userValidation.checkAllParameterForRequestClass(request);
-        userValidation.phoneFormatValidation(request.getPhone());
-        userValidation.emailFormatValidation(request.getEmail());
-        userValidation.uniqueUserNameValidation(request.getUsername());
+        entityValidation.checkAllParameterForRequestClass(request);
+        entityValidation.phoneFormatValidation(request.getPhone());
+        entityValidation.emailFormatValidation(request.getEmail());
+        uniqueUserNameValidation(request.getUsername());
     }
 
     private UserEntity findByUsernameOrThrow(String username) {
@@ -117,6 +114,13 @@ public class UserServiceImpl implements UserService {
         }
         return userEntity;
     }
+
+    private void uniqueUserNameValidation(String username) {
+        if(userRepository.existsByUsername(username)) {
+            throw new UnUniqueUsernameException();
+        }
+    }
+
 
 
 }
