@@ -1,11 +1,8 @@
 package dev.deerops.contentmanagementapi.common.util.exception;
 
-import dev.deerops.contentmanagementapi.common.util.result.ApiResponse;
+
+import dev.deerops.contenthelper.validation.validExcepiton.*;
 import dev.deerops.contentmanagementapi.common.util.result.ApiResponseHelper;
-import dev.deerops.contentmanagementapi.content.model.util.exception.ContentLimitExceededException;
-import dev.deerops.contentmanagementapi.content.model.util.exception.NotFoundContent;
-import dev.deerops.contentmanagementapi.content.model.util.exception.NullOrEmptyContentException;
-import dev.deerops.contentmanagementapi.user.model.util.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
